@@ -67,7 +67,17 @@ app.get('/:short_url', (req, res) => {
 
 app.post('/shorten', (req, res) => {
     const { original_url } = req.body;
-  
+
+    if (!original_url || original_url.trim() === "") {
+        return res.status(400).json({ error: 'Original URL is required' });
+    }
+    
+    try {
+        new URL(original_url);
+    } catch (e) {
+        return res.status(400).json({ error: 'Invalid URL' });
+    }
+
     const short_url = shortid.generate();
   
     const stmt = db.prepare('INSERT INTO urls (short_url, original_url) VALUES (?, ?)');
